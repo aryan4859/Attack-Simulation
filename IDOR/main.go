@@ -56,7 +56,7 @@ var profiles = map[int]string{
 47: "Ulysses: Basic User Profile",
 48: "Vera: Basic User Profile",
 49: "Will: Basic User Profile",
-50: "Xena: Basic User Profile"
+50: "Xena: Basic User Profile",
 }
 
 func profileHandler(w http.ResponseWriter, r *http.Request) {
