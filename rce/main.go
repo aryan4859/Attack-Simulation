@@ -23,6 +23,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("Missing 'cmd' parameter."))
 		return
 	}
+	// Block 'pwd' command
+	if strings.TrimSpace(cmd) == "pwd" {
+		w.WriteHeader(http.StatusForbidden)
+		_, _ = w.Write([]byte("The 'pwd' command is blocked."))
+		return
+	}
 
 	// Debugging: print out the command being executed
 	fmt.Printf("Executing command: %s\n", cmd)
