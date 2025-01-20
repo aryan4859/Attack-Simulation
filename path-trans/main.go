@@ -12,7 +12,7 @@ func main() {
 	http.HandleFunc("/read", readFileHandler)
 
 	fmt.Println("Server started on :8080")
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":3030", nil)
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
