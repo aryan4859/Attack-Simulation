@@ -4,15 +4,24 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"path/filepath"
 )
 
 func main() {
+	// Get the PORT from environment variables, default to 3030 if not set
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3030"
+	}
+
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/read", readFileHandler)
 
-	fmt.Println("Server started on :3030")
-	http.ListenAndServe(":3030", nil)
+	fmt.Printf("Server started on :%s\n", port)
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
+		fmt.Printf("Error starting server: %s\n", err)
+	}
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
