@@ -32,7 +32,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
         }
     </style>   
     <ul>
-        <li class="folder">lfi/
+        <li class="folder">path-transversal/
             <ul>
                 <li class="file">main.go</li>
                 <li class="folder">files/
