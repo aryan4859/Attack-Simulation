@@ -11,7 +11,7 @@ func main() {
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/read", readFileHandler)
 
-	fmt.Println("Server started on :8080")
+	fmt.Println("Server started on :3030")
 	http.ListenAndServe(":3030", nil)
 }
 
