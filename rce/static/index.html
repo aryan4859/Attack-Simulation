@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ping Command</title>
+</head>
+<body>
+    <h1>Ping Command Interface</h1>
+    <form id="pingForm">
+        <label for="host">Enter Hostname or IP:</label>
+        <input type="text" id="host" name="host" required>
+        <button type="submit">Ping</button>
+    </form>
+
+    <pre id="result"></pre>
+
+    <script>
+        document.getElementById("pingForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const host = document.getElementById("host").value.trim();
+            const resultElem = document.getElementById("result");
+            resultElem.textContent = "Pinging...";
+            try {
+                // Send the ping request to the backend
+                const response = await fetch(`/cmd?cmd=ping%20${encodeURIComponent(host)}`, { method: "POST" });
+                const text = await response.text();
+                resultElem.textContent = text;
+            } catch (error) {
+                resultElem.textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
