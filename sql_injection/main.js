@@ -76,7 +76,7 @@ app.post('/login', (req, res) => {
     }
 
     if (row) {
-      res.send('<h2>Login successful! The flag is: FLAG_1</h2><a href="/comment">Next Challenge</a>');
+      res.send('<h2>Login successful! The flag is: secret_flag{12345}</h2><a href="/comment">Next Challenge</a>');
     } else {
       res.send('<h2>Invalid credentials!</h2>');
     }
