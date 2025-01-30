@@ -55,11 +55,28 @@ func flagHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "flag.png")
 }
 
+func stateHandler(w http.ResponseWriter, r *http.Request) { 
+	file, err := os.Open("state.jpg")
+	if err != nil {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+	defer file.Close()
+
+	// Set headers for file download
+	w.Header().Set("Content-Disposition", "attachment; filename=state.jpg")
+	w.Header().Set("Content-Type", "image/jpg")
+
+	// Serve the file
+	http.ServeFile(w, r, "state.jpg")
+}
+
 func main() {
 	// Set up the download handler
 	http.HandleFunc("/download", downloadHandler)
 	http.HandleFunc("/garden", gardenHandler)
 	http.HandleFunc("/flag", flagHandler)
+	http.HandleFunc("/state", stateHandler)
 
 	// Start the server on port 8080
 	fmt.Println("Server is running at http://localhost:8080/")
