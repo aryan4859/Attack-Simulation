@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func downloadHandler(w http.ResponseWriter, r *http.Request) {
+func iot1Handler(w http.ResponseWriter, r *http.Request) {
 	// Open the .pcap file (e.g., abc.pcap) in the current directory
 	file, err := os.Open("IOT1.bin")
 	if err != nil {
@@ -15,8 +15,8 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	// Set headers for file download
-	w.Header().Set("Content-Disposition", "attachment; filename=abc.pcap")
+	// Set headers for file iot1
+	w.Header().Set("Content-Disposition", "attachment; filename=IOT1.bin")
 	w.Header().Set("Content-Type", "application/bin")
 
 	// Serve the file
@@ -24,8 +24,8 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	// Set up the download handler
-	http.HandleFunc("/download", downloadHandler) 
+	// Set up the iot1 handler
+	http.HandleFunc("/iot1", iot1Handler) 
 
 	// Start the server on port 8080
 	fmt.Println("Server is running at http://localhost:8080/")
