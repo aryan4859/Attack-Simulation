@@ -29,7 +29,7 @@ func main() {
 
 	// Start the server on port 8080
 	fmt.Println("Server is running at http://localhost:8080/")
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":3003", nil)
 	if err != nil {
 		fmt.Println("Error starting the server:", err)
 	}
