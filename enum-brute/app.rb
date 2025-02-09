@@ -16,7 +16,7 @@ USERS = (ENV['USERS'] || '').split(',')
 PASSWORDS = (ENV['PASSWORDS'] || '').split(',')
 
 # Generate a random flag
-FLAG = "flag{3NUMER8T10N&85UT3}"
+FLAG = (ENV['FLAG'])
 
 # Route for login page
 get '/' do
