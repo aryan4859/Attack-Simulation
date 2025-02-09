@@ -1,4 +1,4 @@
-require 'sinatra'
+equire 'sinatra'
 require 'dotenv/load'
 require 'securerandom' 
 
