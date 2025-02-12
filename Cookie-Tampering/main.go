@@ -32,7 +32,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check if the decoded value is "admin"
 	if string(decodedValue) == "admin" {
-		fmt.Fprintln(w, "Welcome, Admin! 🎉 Here is your flag: Flag{C00K13_7839ER15g_365c0229669ea435}")
+		fmt.Fprintln(w, "Welcome, Admin! 🎉 Here is your flag: flag{C00K13_7839ER15g_365c0229669ea435}")
 	} else {
 		fmt.Fprintf(w, "Welcome, %s! Try modifying your cookie to become an admin.", decodedValue)
 	}
