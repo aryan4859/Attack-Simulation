@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+	"strings"
 )
 
 const FLAG = "FLAG{60_22Rf_PW73D_200OK}" 
@@ -19,8 +20,8 @@ func main() {
 	http.HandleFunc("/fetch", fetchHandler)
 	http.HandleFunc("/admin", adminHandler)
 
-	fmt.Println("Server started on :8080")
-	http.ListenAndServe(":8080", nil)
+	fmt.Println("Server started on :3000")
+	http.ListenAndServe(":3000", nil)
 }
 
 func fetchHandler(w http.ResponseWriter, r *http.Request) {
