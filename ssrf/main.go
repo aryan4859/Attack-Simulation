@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"time"
-	"strings"
+ 
 )
 
 const FLAG = "FLAG{60_22Rf_PW73D_200OK}" 
@@ -64,13 +64,19 @@ func fetchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func adminHandler(w http.ResponseWriter, r *http.Request) {
-	allowedOrigins := []string{"http://localhost:3000", "http://127.0.0.1:5000"}
+	allowedOrigins := []string{"http://localhost:3000", "http://127.0.0.1:3000"}
 	origin := r.Header.Get("Origin")
+
+	// Allow direct access (Origin might be empty for same-origin requests)
+	if origin == "" {
+		fmt.Fprintf(w, "Admin Panel: The flag is %s", FLAG)
+		return
+	}
 
 	// Check if the request origin is in the allowed list
 	allowed := false
 	for _, o := range allowedOrigins {
-		if strings.HasPrefix(origin, o) {
+		if origin == o {
 			allowed = true
 			break
 		}
@@ -83,3 +89,4 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "Admin Panel: The flag is %s", FLAG)
 }
+
