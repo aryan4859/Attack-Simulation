@@ -7,14 +7,13 @@ import (
 	"net/http"
 	"net/url"
 	"time"
- 
 )
 
-const FLAG = "FLAG{60_22Rf_PW73D_200OK}" 
+const FLAG = "FLAG{SSRF_3xP0s3d_3000}" // Hidden flag
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "Welcome to Sneaky Request! Try to access the admin panel.")
+		fmt.Fprintln(w, "Welcome to Sneaky Requests! Try to access the admin panel.")
 	})
 
 	http.HandleFunc("/fetch", fetchHandler)
@@ -33,7 +32,7 @@ func fetchHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Parse and validate URL
 	parsedURL, err := url.Parse(queryURL)
-	if err != nil || parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+	if err != nil || (parsedURL.Scheme != "http" && parsedURL.Scheme != "https") {
 		http.Error(w, `{"error": "Invalid URL"}`, http.StatusBadRequest)
 		return
 	}
@@ -43,14 +42,14 @@ func fetchHandler(w http.ResponseWriter, r *http.Request) {
 		Timeout: 3 * time.Second,
 	}
 
-	resp, err := client.Get(queryURL)
+	resp, err := client.Get(queryURL) // Server fetches the URL
 	if err != nil {
 		http.Error(w, `{"error": "Failed to fetch URL"}`, http.StatusInternalServerError)
 		return
 	}
 	defer resp.Body.Close()
 
-	// Read the first 300 bytes of the response
+	// Read only the first 300 bytes
 	body, _ := io.ReadAll(io.LimitReader(resp.Body, 300))
 
 	responseData := map[string]interface{}{
@@ -64,29 +63,11 @@ func fetchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func adminHandler(w http.ResponseWriter, r *http.Request) {
-	allowedOrigins := []string{"http://localhost:3000", "http://127.0.0.1:3000"}
-	origin := r.Header.Get("Origin")
-
-	// Allow direct access (Origin might be empty for same-origin requests)
-	if origin == "" {
-		fmt.Fprintf(w, "Admin Panel: The flag is %s", FLAG)
-		return
-	}
-
-	// Check if the request origin is in the allowed list
-	allowed := false
-	for _, o := range allowedOrigins {
-		if origin == o {
-			allowed = true
-			break
-		}
-	}
-
-	if !allowed {
+	// Only allow requests from localhost
+	if r.Host != "localhost:3000" && r.Host != "127.0.0.1:3000" {
 		http.Error(w, "403 Forbidden: Access denied", http.StatusForbidden)
 		return
 	}
 
 	fmt.Fprintf(w, "Admin Panel: The flag is %s", FLAG)
 }
-
