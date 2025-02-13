@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const FLAG = "FLAG{60_22Rf_PW73D_200OK}"
+const FLAG = "FLAG{60_22Rf_PW73D_200OK}" 
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -19,8 +19,8 @@ func main() {
 	http.HandleFunc("/fetch", fetchHandler)
 	http.HandleFunc("/admin", adminHandler)
 
-	fmt.Println("Server started on :3000")
-	http.ListenAndServe(":3000", nil)
+	fmt.Println("Server started on :8080")
+	http.ListenAndServe(":8080", nil)
 }
 
 func fetchHandler(w http.ResponseWriter, r *http.Request) {
@@ -63,5 +63,22 @@ func fetchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func adminHandler(w http.ResponseWriter, r *http.Request) {
+	allowedOrigins := []string{"http://localhost:3000", "http://127.0.0.1:5000"}
+	origin := r.Header.Get("Origin")
+
+	// Check if the request origin is in the allowed list
+	allowed := false
+	for _, o := range allowedOrigins {
+		if strings.HasPrefix(origin, o) {
+			allowed = true
+			break
+		}
+	}
+
+	if !allowed {
+		http.Error(w, "403 Forbidden: Access denied", http.StatusForbidden)
+		return
+	}
+
 	fmt.Fprintf(w, "Admin Panel: The flag is %s", FLAG)
 }
