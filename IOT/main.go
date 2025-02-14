@@ -23,9 +23,25 @@ func iot1Handler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "IOT1.bin")
 }
 
+func revHandler(w http.ResponseWriter, r *http.Request) { 
+	file, err := os.Open("main")
+	if err != nil {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+	defer file.Close()
+
+	// Set headers for file iot1
+	w.Header().Set("Content-Disposition", "attachment; filename=main")
+	w.Header().Set("Content-Type", "application/bin")
+
+	// Serve the file
+	http.ServeFile(w, r, "main")
+}
 func main() {
 	// Set up the iot1 handler
 	http.HandleFunc("/iot1", iot1Handler) 
+	http.HandleFunc("/main", revHandler)
 
 	// Start the server on port 8080
 	fmt.Println("Server is running at http://localhost:8080/")
