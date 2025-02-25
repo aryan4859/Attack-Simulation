@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "3001:80"  # Exposes the app on port 8080
+    volumes:
+      - ./src:/var/www/html
