@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  web:
+    image: nginx:alpine  # Use the official Nginx image
+    build:
+      context: .  # Use the current directory to build the Docker image
+    ports:
+      - "8080:80"  # Expose port 8080 on the host, mapped to port 80 in the container
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html  # Mount the index.html file
+      - ./866d8156c467976aceda8e20f6bc7b83.jpg:/usr/share/nginx/html/866d8156c467976aceda8e20f6bc7b83.jpg  # Mount image 
+    restart: always  # Automatically restart the container if it crashes
