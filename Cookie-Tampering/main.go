@@ -7,7 +7,17 @@ import (
 	"net/http"
 )
 
-// Index handler that checks for the Base64-encoded user cookie
+const css = `
+<style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f4f4f4; }
+    h2 { color: #333; }
+    p { color: #666; }
+    a { display: inline-block; padding: 10px 20px; color: white; background-color: #007BFF; text-decoration: none; border-radius: 5px; }
+    a:hover { background-color: #0056b3; }
+</style>
+`
+
+// indexHandler serves the home page with user authentication status
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// Try to get the "user" cookie
 	cookie, err := r.Cookie("user")
@@ -19,7 +29,17 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 			Value: encodedGuest,
 			Path:  "/",
 		})
-		fmt.Fprintln(w, "No cookie found. Defaulting to guest. Try modifying your cookie.")
+		html := `
+		<!DOCTYPE html>
+		<html>
+		<head><title>Welcome</title>` + css + `</head>
+		<body>
+			<h2>No cookie found. Defaulting to guest.</h2>
+			<p>Try modifying your cookie to see what happens!</p>
+			<a href="/login">Login</a>
+		</body>
+		</html>`
+		fmt.Fprintln(w, html)
 		return
 	}
 
@@ -30,15 +50,34 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if the decoded value is "admin"
+	// Render HTML based on user role
+	var html string
 	if string(decodedValue) == "admin" {
-		fmt.Fprintln(w, "Welcome, Admin! 🎉 Here is your flag: flag{C00K13_7839ER15g_365c0229669ea435}")
+		html = `
+		<!DOCTYPE html>
+		<html>
+		<head><title>Admin Panel</title>` + css + `</head>
+		<body>
+			<h2>Welcome, Admin! 🎉</h2>
+			<p>Here is your flag: <strong>flag{C00K13_7839ER15g_365c0229669ea435}</strong></p>
+		</body>
+		</html>`
 	} else {
-		fmt.Fprintf(w, "Welcome, %s! Try modifying your cookie to become an admin.", decodedValue)
+		html = fmt.Sprintf(`
+		<!DOCTYPE html>
+		<html>
+		<head><title>Welcome</title>`+css+`</head>
+		<body>
+			<h2>Welcome, %s!</h2>
+			<p>Try modifying your cookie to become an admin.</p>
+			<a href="/login">Re-login as Guest</a>
+		</body>
+		</html>`, decodedValue)
 	}
+	fmt.Fprintln(w, html)
 }
 
-// Login handler that sets the "user" cookie with Base64-encoded "guest"
+// loginHandler sets the "user" cookie to "guest"
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	encodedGuest := base64.StdEncoding.EncodeToString([]byte("guest"))
 	http.SetCookie(w, &http.Cookie{
@@ -46,7 +85,19 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		Value: encodedGuest,
 		Path:  "/",
 	})
-	fmt.Fprintln(w, "Logged in as Guest. Try modifying your cookie!")
+
+	html := `
+	<!DOCTYPE html>
+	<html>
+	<head><title>Login</title>` + css + `</head>
+	<body>
+		<h2>Logged in as Guest</h2>
+		<p>Try modifying your cookie!</p>
+		<a href="/">Go to Home</a>
+	</body>
+	</html>`
+
+	fmt.Fprintln(w, html)
 }
 
 func main() {
