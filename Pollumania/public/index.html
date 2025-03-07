@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototype Pollution CTF Challenge</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        .form-container {
+            margin-top: 20px;
+        }
+        .form-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+        }
+        .form-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .form-container button:hover {
+            background-color: #45a049;
+        }
+        .message {
+            color: red;
+            text-align: center;
+        }
+        .flag {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Prototype Pollution CTF</h1>
+    
+    <div class="form-container">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Enter Username" />
+        <button onclick="login()">Login</button>
+    </div>
+    
+    <div class="form-container" style="display: none;" id="update-profile-form">
+        <h2>Update Profile (Pollution Attack)</h2>
+        <input type="text" id="role" placeholder="Enter Role (user/admin)" />
+        <button onclick="updateProfile()">Update Profile</button>
+    </div>
+
+    <div class="form-container" style="display: none;" id="admin-panel-form">
+        <h2>Admin Panel</h2>
+        <button onclick="viewAdminPanel()">View Admin Panel</button>
+    </div>
+
+    <div class="message" id="message"></div>
+    <div class="flag" id="flag"></div>
+
+    <script>
+        let user = null;
+
+        function login() {
+            const username = document.getElementById("username").value;
+
+            fetch("http://localhost:3000/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.user) {
+                    user = data.user;
+                    document.getElementById("message").textContent = "Login successful!";
+                    document.getElementById("update-profile-form").style.display = "block";
+                } else {
+                    document.getElementById("message").textContent = "Invalid credentials";
+                }
+            })
+            .catch(error => {
+                document.getElementById("message").textContent = "Error logging in!";
+            });
+        }
+
+        function updateProfile() {
+            const role = document.getElementById("role").value;
+
+            // This is where we introduce prototype pollution attack
+            const payload = { "__proto__": { "role": "admin" } };
+
+            fetch("http://localhost:3000/update-profile", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    document.getElementById("message").textContent = "Profile updated!";
+                    document.getElementById("admin-panel-form").style.display = "block";
+                } else {
+                    document.getElementById("message").textContent = "Error updating profile!";
+                }
+            })
+            .catch(error => {
+                document.getElementById("message").textContent = "Error updating profile!";
+            });
+        }
+
+        function viewAdminPanel() {
+            fetch("http://localhost:3000/admin-panel", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: 'include' // Include the session cookie
+            })
+            .then(response => response.text())
+            .then(data => {
+                if (data.includes("Here is your flag")) {
+                    document.getElementById("flag").textContent = data;
+                } else {
+                    document.getElementById("flag").textContent = "Access Denied";
+                }
+            })
+            .catch(error => {
+                document.getElementById("flag").textContent = "Error accessing admin panel!";
+            });
+        }
+    </script>
+</body>
+</html>

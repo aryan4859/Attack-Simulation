@@ -23,7 +23,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "abc.pcap")
 }
 
-func gardenHandler(w http.ResponseWriter, r *http.Request) { 
+func gardenHandler(w http.ResponseWriter, r *http.Request) {
 	file, err := os.Open("garden(1).jpg")
 	if err != nil {
 		http.Error(w, "File not found", http.StatusNotFound)
@@ -39,7 +39,7 @@ func gardenHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "garden(1).jpg")
 }
 
-func flagHandler(w http.ResponseWriter, r *http.Request) { 
+func flagHandler(w http.ResponseWriter, r *http.Request) {
 	file, err := os.Open("flag.png")
 	if err != nil {
 		http.Error(w, "File not found", http.StatusNotFound)
@@ -55,7 +55,7 @@ func flagHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "flag.png")
 }
 
-func stateHandler(w http.ResponseWriter, r *http.Request) { 
+func stateHandler(w http.ResponseWriter, r *http.Request) {
 	file, err := os.Open("state.jpg")
 	if err != nil {
 		http.Error(w, "File not found", http.StatusNotFound)
@@ -71,7 +71,7 @@ func stateHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "state.jpg")
 }
 
-func fastHandler(w http.ResponseWriter, r *http.Request) { 
+func fastHandler(w http.ResponseWriter, r *http.Request) {
 	file, err := os.Open("file3.png")
 	if err != nil {
 		http.Error(w, "File not found", http.StatusNotFound)
@@ -87,6 +87,22 @@ func fastHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "file3.png")
 }
 
+func xoracleHandler(w http.ResponseWriter, r *http.Request) {
+	file, err := os.Open("main")
+	if err != nil {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+	defer file.Close()
+
+	// Set headers for file download
+	w.Header().Set("Content-Disposition", "attachment; filename=main")
+	w.Header().Set("Content-Type", "executable")
+
+	// Serve the file
+	http.ServeFile(w, r, "main")
+}
+
 func main() {
 	// Set up the download handler
 	http.HandleFunc("/download", downloadHandler)
@@ -94,6 +110,7 @@ func main() {
 	http.HandleFunc("/flag", flagHandler)
 	http.HandleFunc("/state", stateHandler)
 	http.HandleFunc("/fast", fastHandler)
+	http.HandleFunc("/xoracle", xoracleHandler)
 
 	// Start the server on port 8080
 	fmt.Println("Server is running at http://localhost:8080/")
