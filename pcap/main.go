@@ -103,6 +103,22 @@ func xoracleHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "main")
 }
 
+func wavHandler(w http.ResponseWriter, r *http.Request) {
+	file, err := os.Open("secret.wav")
+	if err != nil {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+	defer file.Close()
+
+	// Set headers for file download
+	w.Header().Set("Content-Disposition", "attachment; filename=secret.wav")
+	w.Header().Set("Content-Type", "audio/wav")
+
+	// Serve the file
+	http.ServeFile(w, r, "secret.wav")
+}
+
 func main() {
 	// Set up the download handler
 	http.HandleFunc("/download", downloadHandler)
@@ -111,6 +127,7 @@ func main() {
 	http.HandleFunc("/state", stateHandler)
 	http.HandleFunc("/fast", fastHandler)
 	http.HandleFunc("/xoracle", xoracleHandler)
+	http.HandleFunc("/wav", wavHandler)
 
 	// Start the server on port 8080
 	fmt.Println("Server is running at http://localhost:8080/")
