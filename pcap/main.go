@@ -24,7 +24,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func gardenHandler(w http.ResponseWriter, r *http.Request) {
-	file, err := os.Open("garden(1).jpg")
+	file, err := os.Open("garden.jpg")
 	if err != nil {
 		http.Error(w, "File not found", http.StatusNotFound)
 		return
@@ -32,11 +32,11 @@ func gardenHandler(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	// Set headers for file download
-	w.Header().Set("Content-Disposition", "attachment; filename=garden(1).jpg")
+	w.Header().Set("Content-Disposition", "attachment; filename=garden.jpg")
 	w.Header().Set("Content-Type", "image/jpg")
 
 	// Serve the file
-	http.ServeFile(w, r, "garden(1).jpg")
+	http.ServeFile(w, r, "garden.jpg")
 }
 
 func flagHandler(w http.ResponseWriter, r *http.Request) {
