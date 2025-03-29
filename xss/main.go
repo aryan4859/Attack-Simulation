@@ -11,7 +11,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	// Set a session cookie (simulating user login)
 	http.SetCookie(w, &http.Cookie{
 		Name:    "session",
-		Value:   "THM{refl3ct3d_x55_victim_fla9}",
+		Value:   "flag{refl3ct3d_x55_victim_fla9}forge",
 		Path:    "/",
 		Expires: time.Now().Add(1 * time.Hour),
 	})
