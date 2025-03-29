@@ -119,6 +119,23 @@ func wavHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "secret.wav")
 }
 
+func secretsHandler(w http.ResponseWriter, r *http.Request) {
+	// Open the secrets file
+	file, err := os.Open("cipher.txt")
+	if err != nil {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+	defer file.Close()
+
+	// Set headers for file download
+	w.Header().Set("Content-Disposition", "attachment; filename=cipher.txt")
+	w.Header().Set("Content-Type", "text/plain")
+
+	// Serve the file
+	http.ServeFile(w, r, "cipher.txt")
+}
+
 func main() {
 	// Set up the download handler
 	http.HandleFunc("/download", downloadHandler)
@@ -128,6 +145,7 @@ func main() {
 	http.HandleFunc("/fast", fastHandler)
 	http.HandleFunc("/xoracle", xoracleHandler)
 	http.HandleFunc("/wav", wavHandler)
+	http.HandleFunc("/secrets", secretsHandler)
 
 	// Start the server on port 8080
 	fmt.Println("Server is running at http://localhost:8080/")
