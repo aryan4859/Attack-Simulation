@@ -67,145 +67,24 @@ app.get('/', (req, res) => {
 // SQL Injection - Login Bypass
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  const query = `SELECT * FROM users WHERE username = ? AND password = ?`;
 
-  db.get(query, [username, password], (err, row) => {
+  // ❌ Directly embedding user input in the query (VULNERABLE)
+  const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
+
+  db.get(query, (err, row) => {
     if (err) {
       res.send('Error in SQL query.');
       return;
     }
 
     if (row) {
-      res.send('<h2>Login successful! The flag is: secret_flag{12345}</h2><a href="/comment">Next Challenge</a>');
+      res.send('<h2>Login successful! The flag is: secret_flag{12345}</h2>');
     } else {
       res.send('<h2>Invalid credentials!</h2>');
     }
   });
 });
 
-// XSS Vulnerability - Exploit to capture cookies or redirect
-app.get('/comment', (req, res) => {
-  res.send(`
-    <h1>Leave a comment (XSS vulnerability)</h1>
-    <form action="/comment" method="POST">
-      Comment: <textarea name="comment"></textarea><br>
-      <input type="submit" value="Submit">
-    </form>
-    <h2>Comments:</h2>
-    <div id="comments">${req.query.comment ? req.query.comment : ''}</div>
-  `);
-});
-
-app.post('/comment', (req, res) => {
-  const { comment } = req.body;
-  res.redirect('/comment?comment=' + comment);
-});
-
-// Insecure Direct Object Reference (IDOR) - Profile info leakage
-app.get('/profile/:userId', (req, res) => {
-  const userId = req.params.userId;
-  const query = `SELECT * FROM users WHERE id = ?`;
-
-  db.get(query, [userId], (err, row) => {
-    if (err) {
-      res.send('Error fetching user profile');
-      return;
-    }
-
-    if (row) {
-      res.send(`
-        <h1>Profile of ${row.username}</h1>
-        <p>ID: ${row.id}</p>
-        <p>Username: ${row.username}</p>
-        <p>Password: ${row.password}</p>
-        <p>Flag for the next step: FLAG_2</p>
-      `);
-    } else {
-      res.send('<h2>User not found</h2>');
-    }
-  });
-});
-
-// Command Injection - Execute arbitrary commands
-app.get('/ping', (req, res) => {
-  res.send(`
-    <h1>Ping a Host</h1>
-    <form action="/ping" method="POST">
-      Host: <input type="text" name="host" /><br>
-      <input type="submit" value="Ping" />
-    </form>
-  `);
-});
-
-app.post('/ping', (req, res) => {
-  const { host } = req.body;
-  exec(`ping ${host}`, (err, stdout, stderr) => {
-    if (err || stderr) {
-      res.send(`Error: ${stderr}`);
-      return;
-    }
-    res.send(`<pre>${stdout}</pre>`);
-  });
-});
-
-// File Upload Vulnerability - Upload reverse shell
-const upload = multer({
-  dest: 'uploads/',
-  limits: { fileSize: 1 * 1024 * 1024 },
-});
-
-app.get('/upload', (req, res) => {
-  res.send(`
-    <h1>Upload a file (Vulnerable)</h1>
-    <form action="/upload" method="POST" enctype="multipart/form-data">
-      <input type="file" name="file" /><br>
-      <input type="submit" value="Upload" />
-    </form>
-  `);
-});
-
-app.post('/upload', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.send('<h2>No file uploaded!</h2>');
-  }
-  res.send(`<h2>File uploaded: ${req.file.originalname}</h2>`);
-});
-
-// Weak Password Hashing (MD5) - Cracking the password hash
-function hashPassword(password) {
-  return crypto.createHash('md5').update(password).digest('hex');
-}
-
-app.get('/login-again', (req, res) => {
-  res.send(`
-    <h1>Login Again (Weak MD5 Hashing)</h1>
-    <form action="/login-again" method="POST">
-      Username: <input type="text" name="username"><br>
-      Password: <input type="password" name="password"><br>
-      <input type="submit" value="Login">
-    </form>
-  `);
-});
-
-app.post('/login-again', (req, res) => {
-  const { username, password } = req.body;
-  const hashedPassword = hashPassword(password);
-
-  const query = `SELECT * FROM users WHERE username = ? AND password = ?`;
-
-  db.get(query, [username, hashedPassword], (err, row) => {
-    if (err) {
-      res.send('Error in SQL query.');
-      return;
-    }
-
-    if (row) {
-      res.send('<h2>Login successful! The final flag is: FLAG_3</h2>');
-    } else {
-      res.send('<h2>Invalid credentials!</h2>');
-    }
-  });
-}); 
 
 // Start server
 const PORT = process.env.PORT || 3000;
