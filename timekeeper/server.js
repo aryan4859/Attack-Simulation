@@ -8,7 +8,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 const users = [
-  { username: "admin", password: "supersecret", flag: "flag{T1m3K33p3r_U53r3nuM_3xp017}forge" }
+  { username: "hannah", password: "tinkerbell", flag: "flag{T1m3K33p3r_U53r3nuM_3xp017}forge" }
 ];
 
 function sleep(ms) {
