@@ -1,7 +1,0 @@
-version: '3'
-services:
-  papercuts:
-    build: ./docker
-    ports:
-      - "8080:80"
-    container_name: papercuts_ctf
