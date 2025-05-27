@@ -136,6 +136,22 @@ func secretsHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "cipher.txt")
 }
 
+func alfridaHandler(w http.ResponseWriter, r *http.Request){
+	file, err := os.Open("alfrida.apk")
+	if err != nil {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+	defer file.Close()
+
+	// Set headers for file download
+	w.Header().Set("Content-Disposition", "attachment; filename=alfrida.apk")
+	w.Header().Set("Content-Type", "text/plain")
+
+	// Serve the file
+	http.ServeFile(w, r, "alfrida.apk")
+}
+
 func main() {
 	// Set up the download handler
 	http.HandleFunc("/download", downloadHandler)
@@ -146,6 +162,7 @@ func main() {
 	http.HandleFunc("/xoracle", xoracleHandler)
 	http.HandleFunc("/wav", wavHandler)
 	http.HandleFunc("/secrets", secretsHandler)
+	http.HandleFunc("/alfrida", alfridaHandler)
 
 	// Start the server on port 8080
 	fmt.Println("Server is running at http://localhost:8080/")
