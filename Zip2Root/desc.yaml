@@ -1,0 +1,6 @@
+name: "Zip2Rooot"
+category: "web"
+description: "A web challenge built around an exposed www.zip archive and an admin panel. Port 8080"
+hardlevel: 5
+flag: "Flag{www_zip_admin_union_doc_8080}Forge"
+is_docker: true
