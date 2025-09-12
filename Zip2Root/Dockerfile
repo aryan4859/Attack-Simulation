@@ -6,17 +6,17 @@ LABEL MAINTAINER="aryanstha <aryanstha4859@gmail.com>"
 # Install mysqli extension
 RUN docker-php-ext-install mysqli
 
-# Copy your web files into the container
+# Copy web files
 COPY www/ /var/www/html/
 
-# Set proper permissions
+# Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Enable mod_rewrite (optional, if needed)
+# Enable mod_rewrite
 RUN a2enmod rewrite
 
-# Configure Apache to use index.php by default
+# Apache configuration to use index.php
 RUN echo '<Directory /var/www/html>\n\
     Options -Indexes +FollowSymLinks\n\
     DirectoryIndex index.php index.html\n\
@@ -25,8 +25,11 @@ RUN echo '<Directory /var/www/html>\n\
 </Directory>' > /etc/apache2/conf-available/zip2root.conf \
     && a2enconf zip2root
 
-# Expose port 80
+# Copy wait-for-db script
+COPY wait-for-db.sh /wait-for-db.sh
+RUN chmod +x /wait-for-db.sh
+
 EXPOSE 80
 
-# Start Apache in foreground
-CMD ["apache2-foreground"]
+# Start Apache after waiting for DB
+CMD ["/wait-for-db.sh", "db", "apache2-foreground"]

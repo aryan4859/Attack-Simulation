@@ -1,14 +1,20 @@
 version: "2"
+
 services:
   web:
     build: .
-    depends_on: 
+    depends_on:
       - db
+    environment:
+      MYSQL_USER: aryan
+      MYSQL_PASSWORD: aryan404
+      MYSQL_DATABASE: file_sqli
     volumes:
       - ./www:/var/www/html
+      - ./wait-for-db.sh:/wait-for-db.sh
     ports:
-      - 80
-    
+      - "80:80"
+
   db:
     image: mariadb:10.4
     environment:
