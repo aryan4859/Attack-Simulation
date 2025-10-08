@@ -203,8 +203,6 @@ app.get("/", (req, res) => {
         <label class="small">Act as (X-User): </label>
         <select id="actor">
           <option value="1">1 — alice (employee)</option>
-          <option value="2">2 — bob (manager)</option>
-          <option value="3">3 — charlie (finance)</option>
         </select>
         <button id="btn-login" class="secondary" style="margin-left:8px;">Login</button>
       </div>
@@ -233,11 +231,6 @@ app.get("/", (req, res) => {
         <button id="btn-pay" class="secondary">Pay (as current actor)</button>
         <button id="btn-flag" style="background:#059669">Fetch Flag</button>
       </div>
-    </section>
-
-    <section class="card">
-      <h3>Activity Log</h3>
-      <pre id="log">No activity yet.</pre>
     </section>
 
     <footer style="margin-top:12px;" class="muted small">
