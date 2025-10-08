@@ -28,18 +28,21 @@
     <script nonce="{{nonce}}">
       const $ = document.querySelector.bind(document); // imagine using
       jQuery... const entries = JSON.parse(decodeURIComponent("{{list}}"));
-      entries.forEach((entry, i) => { let blockquote =
-      document.createElement("blockquote");
-      blockquote.appendChild(Object.assign(document.createElement("div"), {
-      innerHTML: DOMPurify.sanitize(entry) }));
-      blockquote.appendChild(document.createElement("br")); let form =
+      entries.forEach((entry, i) => { // Create a blockquote element const
+      blockquote = document.createElement("blockquote"); // Add the sanitized
+      entry content const contentDiv =
+      Object.assign(document.createElement("div"), { innerHTML:
+      DOMPurify.sanitize(entry), }); blockquote.appendChild(contentDiv);
+      blockquote.appendChild(document.createElement("br")); // Create a form for
+      deleting the entry const form =
       Object.assign(document.createElement("form"), { method: "POST", action:
-      "/remove" });
-      form.appendChild(Object.assign(document.createElement("input"), { type:
-      "hidden", name: "index", value: i }));
-      form.appendChild(Object.assign(document.createElement("input"), { type:
-      "submit", value: "delete" })); blockquote.appendChild(form);
-      $("#list").appendChild(blockquote); });
+      "/remove", }); form.appendChild(
+      Object.assign(document.createElement("input"), { type: "hidden", name:
+      "index", value: i, }) ); form.appendChild(
+      Object.assign(document.createElement("input"), { type: "submit", value:
+      "delete", }) ); blockquote.appendChild(form); // Append the blockquote to
+      the list $("#list").appendChild(blockquote); });
+
     </script>
   </body>
 </html>
