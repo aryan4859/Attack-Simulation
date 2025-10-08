@@ -197,12 +197,12 @@ app.get("/", (req, res) => {
     <header>
       <div>
         <h1>Approve Now — BizLogic Bypass</h1>
-        <div class="muted">Demo frontend for the CTF challenge. The server trusts the <code>X-User</code> header.</div>
+         
       </div>
       <div>
-        <label class="small">Act as (X-User): </label>
+        <label class="small">User</label>
         <select id="actor">
-          <option value="1">1 — alice (employee)</option>
+          <option value="1">alice (employee)</option>
         </select>
         <button id="btn-login" class="secondary" style="margin-left:8px;">Login</button>
       </div>
@@ -234,112 +234,98 @@ app.get("/", (req, res) => {
     </section>
 
     <footer style="margin-top:12px;" class="muted small">
-      Use the controls above to simulate the exploit: submit an expense as alice (1), view the email to get the approval token,
-      call /approve with the token (server doesn't verify requester identity properly), then switch to finance (3) and call /pay/:id,
-      finally fetch /flag. This UI simply sets the <code>X-User</code> header on each request.
+      <div>BizLogic Bypass CTF Challenge Demo - Developer made intentional security mistakes for learning purposes.</div>
     </footer>
   </div>
 
-  <script>
-    const logEl = document.getElementById('log');
-    const actorEl = document.getElementById('actor');
-    const amountEl = document.getElementById('amount');
-    const descEl = document.getElementById('description');
-    const emailBox = document.getElementById('email-box');
-    const tokenInput = document.getElementById('token-input');
+  <<script>
+  const actorEl = document.getElementById('actor');
+  const amountEl = document.getElementById('amount');
+  const descEl = document.getElementById('description');
+  const emailBox = document.getElementById('email-box');
+  const tokenInput = document.getElementById('token-input');
 
-    function addLog(line) {
-      const now = new Date().toISOString();
-      logEl.textContent = now + '  ' + line + '\\n' + logEl.textContent;
+  function addLog(line) {
+    // now just log to console
+    console.log(new Date().toISOString() + '  ' + line);
+  }
+
+  async function api(path, opts = {}) {
+    opts.headers = opts.headers || {};
+    opts.headers['X-User'] = actorEl.value;
+    if (opts.body && typeof opts.body === 'object') {
+      opts.body = JSON.stringify(opts.body);
+      opts.headers['Content-Type'] = 'application/json';
     }
-
-    async function api(path, opts = {}) {
-      opts.headers = opts.headers || {};
-      opts.headers['X-User'] = actorEl.value;
-      if (opts.body && typeof opts.body === 'object') {
-        opts.body = JSON.stringify(opts.body);
-        opts.headers['Content-Type'] = 'application/json';
-      }
-      try {
-        const res = await fetch(path, opts);
-        const text = await res.text();
-        let json = null;
-        try { json = JSON.parse(text); } catch(e) {}
-        return { ok: res.ok, status: res.status, text, json };
-      } catch (err) {
-        return { ok: false, status: 0, text: String(err) };
-      }
+    try {
+      const res = await fetch(path, opts);
+      const text = await res.text();
+      let json = null;
+      try { json = JSON.parse(text); } catch(e) {}
+      return { ok: res.ok, status: res.status, text, json };
+    } catch (err) {
+      return { ok: false, status: 0, text: String(err) };
     }
+  }
 
-    document.getElementById('btn-login').addEventListener('click', async () => {
-      const username = actorEl.value === '1' ? 'alice' : actorEl.value === '2' ? 'bob' : 'charlie';
-      addLog('Logging in as ' + username);
-      const r = await api('/login', { method: 'POST', body: { username } });
-      addLog('Login response: ' + (r.json ? JSON.stringify(r.json) : r.text));
-    });
+  document.getElementById('btn-login').addEventListener('click', async () => {
+    const username = actorEl.value === '1' ? 'alice' : actorEl.value === '2' ? 'bob' : 'charlie';
+    addLog('Logging in as ' + username);
+    const r = await api('/login', { method: 'POST', body: { username } });
+    addLog('Login response: ' + (r.json ? JSON.stringify(r.json) : r.text));
+  });
 
-    document.getElementById('btn-submit').addEventListener('click', async () => {
-      const amount = Number(amountEl.value) || 0;
-      const description = descEl.value || '';
-      addLog('Submitting expense: ' + amount + ' - ' + description);
-      const r = await api('/expenses', { method: 'POST', body: { amount, description } });
-      addLog('Submit response (' + r.status + '): ' + (r.json ? JSON.stringify(r.json) : r.text));
-      if (r.json && r.json.expenseId) {
-        addLog('Expense created id=' + r.json.expenseId);
-      }
-    });
+  document.getElementById('btn-submit').addEventListener('click', async () => {
+    const amount = Number(amountEl.value) || 0;
+    const description = descEl.value || '';
+    addLog('Submitting expense: ' + amount + ' - ' + description);
+    const r = await api('/expenses', { method: 'POST', body: { amount, description } });
+    addLog('Submit response (' + r.status + '): ' + (r.json ? JSON.stringify(r.json) : r.text));
+  });
 
-    document.getElementById('btn-view-email').addEventListener('click', async () => {
-      addLog('Fetching last email');
-      const r = await api('/emails/last', { method: 'GET' });
-      addLog('Email response (' + r.status + '): ' + (r.json ? JSON.stringify(r.json) : r.text));
-      if (r.json && r.json.body) {
-        emailBox.textContent = 'To: ' + r.json.to + ' | Subject: ' + r.json.subject + ' | Body: ' + r.json.body;
-        // Try to extract token automatically
-        const m = (r.json.body || '').match(/token=([A-Za-z0-9-_\\.]+)/);
-        if (m) {
-          tokenInput.value = m[1];
-          addLog('Approval token auto-copied to token field');
-        }
-      } else {
-        emailBox.textContent = 'No email.';
-      }
-    });
+  document.getElementById('btn-view-email').addEventListener('click', async () => {
+    addLog('Fetching last email');
+    const r = await api('/emails/last', { method: 'GET' });
+    addLog('Email response (' + r.status + '): ' + (r.json ? JSON.stringify(r.json) : r.text));
+    if (r.json && r.json.body) {
+      emailBox.textContent = 'To: ' + r.json.to + ' | Subject: ' + r.json.subject + ' | Body: ' + r.json.body;
+      const m = (r.json.body || '').match(/token=([A-Za-z0-9-_\\.]+)/);
+      if (m) tokenInput.value = m[1];
+    } else {
+      emailBox.textContent = 'No email.';
+    }
+  });
 
-    document.getElementById('btn-approve').addEventListener('click', async () => {
-      const token = tokenInput.value.trim();
-      if (!token) { addLog('No token provided'); return; }
-      addLog('Calling /approve with token (as X-User=' + actorEl.value + ')');
-      const r = await api('/approve?token=' + encodeURIComponent(token), { method: 'GET' });
-      addLog('Approve response (' + r.status + '): ' + (r.text || ''));
-    });
+  document.getElementById('btn-approve').addEventListener('click', async () => {
+    const token = tokenInput.value.trim();
+    if (!token) { addLog('No token provided'); return; }
+    addLog('Calling /approve with token (as X-User=' + actorEl.value + ')');
+    const r = await api('/approve?token=' + encodeURIComponent(token), { method: 'GET' });
+    addLog('Approve response (' + r.status + '): ' + (r.text || ''));
+  });
 
-    document.getElementById('btn-pay').addEventListener('click', async () => {
-      // We don't track last expense id in UI; try to pay expense 1..n — pick the highest id from server memory by asking email link
-      addLog('Attempting to pay latest expense (as X-User=' + actorEl.value + ')');
-      // crude approach: try to find max expense id by reading email and extract id, else try id=1
-      let tryId = 1;
-      const emailRes = await api('/emails/last', { method: 'GET' });
-      if (emailRes.json && emailRes.json.subject) {
-        const m = (emailRes.json.subject || '').match(/Approve expense (\\d+)/);
-        if (m) tryId = Number(m[1]);
-      }
-      const r = await api('/pay/' + tryId, { method: 'POST' });
-      addLog('Pay response (' + r.status + '): ' + (r.json ? JSON.stringify(r.json) : r.text));
-    });
+  document.getElementById('btn-pay').addEventListener('click', async () => {
+    addLog('Attempting to pay latest expense (as X-User=' + actorEl.value + ')');
+    let tryId = 1;
+    const emailRes = await api('/emails/last', { method: 'GET' });
+    if (emailRes.json && emailRes.json.subject) {
+      const m = (emailRes.json.subject || '').match(/Approve expense (\d+)/);
+      if (m) tryId = Number(m[1]);
+    }
+    const r = await api('/pay/' + tryId, { method: 'POST' });
+    addLog('Pay response (' + r.status + '): ' + (r.json ? JSON.stringify(r.json) : r.text));
+  });
 
-    document.getElementById('btn-flag').addEventListener('click', async () => {
-      addLog('Fetching /flag (as X-User=' + actorEl.value + ')');
-      const r = await api('/flag', { method: 'GET' });
-      addLog('Flag response (' + r.status + '): ' + (r.text || ''));
-      if (r.ok) {
-        alert('Flag: ' + r.text);
-      }
-    });
+  document.getElementById('btn-flag').addEventListener('click', async () => {
+    addLog('Fetching /flag (as X-User=' + actorEl.value + ')');
+    const r = await api('/flag', { method: 'GET' });
+    addLog('Flag response (' + r.status + '): ' + (r.text || ''));
+    if (r.ok) alert('Flag: ' + r.text);
+  });
 
-    // initial log
-    addLog('UI ready. Select actor and interact with the server.');
-  </script>
+  addLog('UI ready. Select actor and interact with the server.');
+</script>
+
 </body>
 </html>`);
 });
