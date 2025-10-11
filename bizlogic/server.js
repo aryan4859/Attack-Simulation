@@ -26,6 +26,9 @@ let users = [
 let expenses = [];
 let nextExpenseId = 1;
 
+// Track which users have successfully completed the challenge
+let flagEarnedByUsers = new Set();
+
 // Intentionally weak secret and predictable token generation logic
 const JWT_SECRET = "acmecorp-secret"; // <-- weak / known in challenge
 const PORT = 3000;
@@ -60,7 +63,6 @@ app.post("/login", (req, res) => {
   });
 });
 
-// Submit expense
 // Submit expense
 app.post("/expenses", auth, (req, res) => {
   const { amount, description } = req.body;
@@ -149,23 +151,30 @@ app.post("/pay/:id", auth, (req, res) => {
     return res.status(400).json({ error: "expense not approved" });
 
   expense.status = "paid";
+  expense.paidBy = req.user.id; // Track who paid this expense
 
-  // When an expense transitions to 'paid', the system writes the FLAG to a file readable only by finance.
-  // In the challenge, the "flag" is revealed via the /flag route only if a paid expense exists.
+  // Mark that this user has earned the flag
+  flagEarnedByUsers.add(req.user.id);
+
+  // Keep the legacy variable for backwards compatibility
   app.locals.paidExpense = expense.id;
 
-  res.json({ message: `Expense ${id} paid.` });
+  res.json({ message: `Expense ${id} paid. You have earned the flag!` });
 });
 
-// Endpoint to fetch the flag — only practical once a paid expense exists.
+// Endpoint to fetch the flag — only accessible to users who have successfully paid an expense
 app.get("/flag", auth, (req, res) => {
-  // Only pretend-protect: in challenge, if a paid expense exists, anyone can fetch /flag
-  // to see "the secret" — the goal is to cause the system to reach that paid state.
-  if (!app.locals.paidExpense)
-    return res.status(404).json({ error: "No paid expenses yet" });
+  // Check if the current user has earned the flag
+  if (!flagEarnedByUsers.has(req.user.id)) {
+    return res.status(403).json({ 
+      error: "Access denied. You must complete the challenge yourself to earn the flag." 
+    });
+  }
+
   const flagPath = path.join(__dirname, "FLAG");
   if (!fs.existsSync(flagPath))
     return res.status(500).json({ error: "FLAG file missing on server" });
+  
   const flag = fs.readFileSync(flagPath, "utf8");
   res.type("text").send(flag);
 });
@@ -238,7 +247,7 @@ app.get("/", (req, res) => {
     </footer>
   </div>
 
-  <<script>
+  <script>
   const actorEl = document.getElementById('actor');
   const amountEl = document.getElementById('amount');
   const descEl = document.getElementById('description');
@@ -321,6 +330,7 @@ app.get("/", (req, res) => {
     const r = await api('/flag', { method: 'GET' });
     addLog('Flag response (' + r.status + '): ' + (r.text || ''));
     if (r.ok) alert('Flag: ' + r.text);
+    else if (r.json) alert('Error: ' + (r.json.error || r.text));
   });
 
   addLog('UI ready. Select actor and interact with the server.');
